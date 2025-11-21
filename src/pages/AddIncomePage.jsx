@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, query, where } from 'firebase/firestore';
 import { db, auth } from '../firebase';
-import { Container, Typography, Box, TextField, Button, Select, MenuItem, InputLabel, FormControl } from '@mui/material';
+import { Container, Title, TextInput, NumberInput, Select, Button, Stack, Paper } from '@mantine/core';
+import { DatePicker } from '@mantine/dates';
 import { useNavigate } from 'react-router-dom';
 
 const AddIncomePage = () => {
   const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
+  const [amount, setAmount] = useState(0);
   const [category, setCategory] = useState('');
+  const [date, setDate] = useState(new Date());
   const [categories, setCategories] = useState([]);
   const navigate = useNavigate();
 
@@ -34,55 +36,56 @@ const AddIncomePage = () => {
         description,
         amount: parseFloat(amount),
         category,
-        date: new Date(),
+        date,
       });
       navigate('/dashboard');
     }
   };
 
   return (
-    <Container maxWidth="sm">
-      <Box sx={{ mt: 4 }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Add Income
-        </Typography>
+    <Container size="sm" my="md">
+      <Paper withBorder shadow="md" p={30} mt={30} radius="md">
+        <Title order={2} mb="lg">Add New Income</Title>
         <form onSubmit={handleSubmit}>
-          <TextField
-            label="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            fullWidth
-            margin="normal"
-            required
-          />
-          <TextField
-            label="Amount"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            type="number"
-            fullWidth
-            margin="normal"
-            required
-          />
-          <FormControl fullWidth margin="normal" required>
-            <InputLabel id="category-label">Category</InputLabel>
+          <Stack>
+            <TextInput
+              label="Description"
+              placeholder="Enter income description"
+              value={description}
+              onChange={(event) => setDescription(event.currentTarget.value)}
+              required
+            />
+            <NumberInput
+              label="Amount"
+              placeholder="Enter amount"
+              value={amount}
+              onChange={setAmount}
+              min={0}
+              step={0.01}
+              precision={2}
+              required
+            />
             <Select
-              labelId="category-label"
+              label="Category"
+              placeholder="Select a category"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
-            >
-              {categories.map((cat) => (
-                <MenuItem key={cat.id} value={cat.name}>
-                  {cat.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button type="submit" variant="contained" sx={{ mt: 2 }}>
-            Add Income
-          </Button>
+              onChange={setCategory}
+              data={categories.map(cat => ({ value: cat.name, label: cat.name }))}
+              required
+            />
+            <DatePicker
+              label="Date"
+              placeholder="Select date"
+              value={date}
+              onChange={setDate}
+              required
+            />
+            <Button type="submit" mt="md">
+              Add Income
+            </Button>
+          </Stack>
         </form>
-      </Box>
+      </Paper>
     </Container>
   );
 };

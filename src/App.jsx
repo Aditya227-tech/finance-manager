@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebase';
+import { AppShell, LoadingOverlay, Container } from '@mantine/core';
 import Navbar from './components/Navbar';
 import LoginPage from './pages/LoginPage';
 import PinLockPage from './pages/PinLockPage';
@@ -11,8 +12,9 @@ import AddIncomePage from './pages/AddIncomePage';
 import CategoriesPage from './pages/CategoriesPage';
 import BudgetPage from './pages/BudgetPage';
 import ReportsPage from './pages/ReportsPage';
+import SettingsPage from './pages/SettingsPage';
 
-function App() {
+const App = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -24,23 +26,40 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  const PrivateRoute = ({ children }) => {
+    return user ? children : <Navigate to="/" />;
+  };
 
   return (
     <Router>
-      <Navbar user={user} />
-      <Routes>
-        <Route path="/" element={!user ? <LoginPage /> : <Navigate to="/dashboard" />} />
-        <Route path="/pin-lock" element={<PinLockPage />} />
-        <Route path="/dashboard" element={user ? <DashboardPage /> : <Navigate to="/" />} />
-        <Route path="/add-expense" element={user ? <AddExpensePage /> : <Navigate to="/" />} />
-        <Route path="/add-income" element={user ? <AddIncomePage /> : <Navigate to="/" />} />
-        <Route path="/categories" element={user ? <CategoriesPage /> : <Navigate to="/" />} />
-        <Route path="/budget" element={user ? <BudgetPage /> : <Navigate to="/" />} />
-        <Route path="/reports" element={user ? <ReportsPage /> : <Navigate to="/" />} />
-      </Routes>
+        <LoadingOverlay visible={loading} />
+        <Routes>
+            <Route path="/" element={!user ? <LoginPage /> : <Navigate to="/dashboard" />} />
+            <Route path="/pin-lock" element={<PinLockPage />} />
+            <Route 
+                path="/*"
+                element={
+                    <PrivateRoute>
+                        <AppShell
+                            navbar={<Navbar user={user} />}
+                            padding="md"
+                        >
+                            <Container fluid>
+                                <Routes>
+                                    <Route path="/dashboard" element={<DashboardPage />} />
+                                    <Route path="/add-expense" element={<AddExpensePage />} />
+                                    <Route path="/add-income" element={<AddIncomePage />} />
+                                    <Route path="/categories" element={<CategoriesPage />} />
+                                    <Route path="/budget" element={<BudgetPage />} />
+                                    <Route path="/reports" element={<ReportsPage />} />
+                                    <Route path="/settings" element={<SettingsPage />} />
+                                </Routes>
+                            </Container>
+                        </AppShell>
+                    </PrivateRoute>
+                }
+            />
+        </Routes>
     </Router>
   );
 }

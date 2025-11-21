@@ -1,37 +1,80 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button } from '@mui/material';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { signOut } from 'firebase/auth';
 import { auth } from '../firebase';
+import { Navbar, NavLink as MantineNavLink, Group, Code, Text, Avatar, Button } from '@mantine/core';
+import {
+  IconGauge, IconPlus, IconCoin, IconList, IconReportMoney, IconChartBar, IconLogout, IconSettings
+} from '@tabler/icons-react';
 
-const Navbar = ({ user }) => {
+const navItems = [
+    { to: '/dashboard', icon: <IconGauge size={18} />, label: 'Dashboard' },
+    { to: '/add-expense', icon: <IconPlus size={18} />, label: 'Add Expense' },
+    { to: '/add-income', icon: <IconCoin size={18} />, label: 'Add Income' },
+    { to: '/categories', icon: <IconList size={18} />, label: 'Categories' },
+    { to: '/budget', icon: <IconReportMoney size={18} />, label: 'Budget' },
+    { to: '/reports', icon: <IconChartBar size={18} />, label: 'Reports' },
+    { to: '/settings', icon: <IconSettings size={18} />, label: 'Settings' },
+];
+
+const CustomNavbar = ({ user }) => {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
-    await auth.signOut();
+    try {
+      await signOut(auth);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout Error:', error);
+    }
   };
 
+  const userAvatar = user?.photoURL || `https://api.dicebear.com/6.x/initials/svg?seed=${user?.email}`;
+
   return (
-    <AppBar position="static">
-      <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-          <Link to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
-            Finance Tracker
-          </Link>
-        </Typography>
-        {user ? (
-          <>
-            <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
-            <Button color="inherit" component={Link} to="/add-expense">Add Expense</Button>
-            <Button color="inherit" component={Link} to="/add-income">Add Income</Button>
-            <Button color="inherit" component={Link} to="/categories">Categories</Button>
-            <Button color="inherit" component={Link} to="/budget">Budget</Button>
-            <Button color="inherit" component={Link} to="/reports">Reports</Button>
-            <Button color="inherit" onClick={handleLogout}>Logout</Button>
-          </>
-        ) : (
-          <Button color="inherit" component={Link} to="/">Login</Button>
-        )}
-      </Toolbar>
-    </AppBar>
+    <Navbar width={{ sm: 250, lg: 300 }} p="md">
+      <Navbar.Section>
+        <Group position="apart">
+          <Text weight={700} size="xl">FinanceFlow</Text>
+          <Code>v0.1.0</Code>
+        </Group>
+      </Navbar.Section>
+      
+      <Navbar.Section grow mt="md">
+        {navItems.map((item) => (
+            <MantineNavLink
+                key={item.label}
+                label={item.label}
+                icon={item.icon}
+                component={NavLink}
+                to={item.to}
+                active={window.location.pathname === item.to}
+                variant="filled"
+            />
+        ))}
+      </Navbar.Section>
+
+      <Navbar.Section>
+        <Group spacing="xs">
+            <Avatar src={userAvatar} radius="xl" />
+            <div style={{ flex: 1 }}>
+                <Text size="sm" weight={500}>{user?.displayName}</Text>
+                <Text color="dimmed" size="xs">{user?.email}</Text>
+            </div>
+        </Group>
+        <Button 
+            fullWidth 
+            mt="md"
+            variant="light"
+            color="red"
+            leftIcon={<IconLogout size={16} />}
+            onClick={handleLogout}
+        >
+          Logout
+        </Button>
+      </Navbar.Section>
+    </Navbar>
   );
 };
 
-export default Navbar;
+export default CustomNavbar;

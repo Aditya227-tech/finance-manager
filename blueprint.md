@@ -28,6 +28,7 @@ A personal finance tracker application to help users manage their income and exp
     *   `CategoriesPage` to manage expense and income categories.
     *   `BudgetPage` to set and track budgets.
     *   `ReportsPage` for visualizing financial data.
+    *   `SettingsPage` for account management, including password changes and account deletion.
 
 ## UI/UX Refinements
 
@@ -36,6 +37,10 @@ A personal finance tracker application to help users manage their income and exp
     *   Enhanced summary cards with icons and a more modern design.
 *   **Transaction List:**
     *   Added avatars with icons for income and expense transactions.
+*   **Budget Page:**
+    *   Redesigned with a `RingProgress` component for a more dynamic and visually appealing representation of budget tracking.
+*   **Reports Page:**
+    *   Added a date range filter to allow users to view reports for specific periods.
 
 ## Visualizations
 
